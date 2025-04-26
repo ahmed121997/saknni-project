@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\TypeFinish;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class TypeFinishController extends Controller
 {
@@ -12,15 +14,7 @@ class TypeFinishController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return view('admin.type_finish.index');
     }
 
     /**
@@ -28,15 +22,17 @@ class TypeFinishController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        $request->validate([
+            'name' => 'required|array',
+            'name.*' => 'required|string|max:255',
+        ]);
+        $typeFinish = TypeFinish::updateOrCreate(['id' => $request->finish_type_id], [
+            'name' => $request->name,
+        ]);
+        return response()->json([
+            'status' => true,
+            'message' => __('admin.type_finish.added'),
+        ]);
     }
 
     /**
@@ -44,15 +40,8 @@ class TypeFinishController extends Controller
      */
     public function edit(string $id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        $type = TypeFinish::find($id);
+        return response()->json($type);
     }
 
     /**
@@ -60,6 +49,26 @@ class TypeFinishController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $type = TypeFinish::find($id);
+        $type->delete();
+        return response()->json([
+            'status' => true,
+            'message' => __('admin.type_finish.deleted'),
+        ]);
+    }
+
+    public function typeFinishDatatable(Request $request)
+    {
+        $typeFinishes = TypeFinish::query();
+        return DataTables::of($typeFinishes)
+            ->addColumn('actions', function ($typeFinish) {
+                return view('components.table-actions', ['id' => $typeFinish->id, 'editClass' => 'editTypeFinish', 'deleteClass' => 'deleteTypeFinish']);
+            })
+            ->addColumn('name', function ($typeFinish) {
+                return collect(config('app.locales'))
+                    ->map(fn($label, $key) => e($typeFinish->getTranslation('name', $key)))
+                    ->implode('<br>');
+            })->rawColumns(['actions', 'name'])
+            ->make(true);
     }
 }

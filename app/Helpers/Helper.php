@@ -26,3 +26,15 @@ if(!function_exists('getYoutubeId')) {
         return null;
     }
 }
+
+// check routes is active
+if(!function_exists('isActiveRoutes')) {
+    function isActiveRoutes($routeNames = [], $class = 'active', $not = '')
+    {
+        $currentRouteName = request()->route()->getName();
+        if(in_array($currentRouteName, $routeNames)) {
+            return $class;
+        }
+        return $not;
+    }
+}

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\FileManagerController;
 use App\Http\Controllers\Admin\ListViewController;
 use App\Http\Controllers\Admin\PropertyAdminController;
 use App\Http\Controllers\Admin\TypeFinishController;
@@ -42,7 +43,23 @@ Route::group(['prefix'=>'admin', 'as' => 'admin.', 'middleware' => 'auth:admin']
     Route::get('/special-properties', [PropertyAdminController::class, 'allSpecial'])->name('all.special.properties');
 
 
-    Route::resource('type-properties', TypePropertyController::class)->names('type-properties');
-    Route::resource('list-views', ListViewController::class)->names('list-views');
-    Route::resource('type-finishes', TypeFinishController::class)->names('type-finishes');
+    Route::resource('type-properties', TypePropertyController::class)->only(['index', 'store', 'edit', 'destroy']);
+    Route::post('/type-properties/datatable', [TypePropertyController::class, 'typePropertyDatatable'])->name('type-properties.datatable');
+    Route::resource('list-views', ListViewController::class)->only(['index', 'store', 'edit', 'destroy']);
+    Route::post('/list-views/datatable', [ListViewController::class, 'listViewDatatable'])->name('list-views.datatable');
+    Route::resource('type-finishes', TypeFinishController::class)->only(['index', 'store', 'edit', 'destroy']);
+    Route::post('/type-finishes/datatable', [TypeFinishController::class, 'typeFinishDatatable'])->name('type-finishes.datatable');
+
+    //filemanager routes
+    Route::get('/filemanager',[ FileManagerController::class, 'index'])->name('filemanager.index');
+
+
 });
+
+Route::group([
+    'prefix' => 'admin/media-filemanager',
+    'middleware' => ['web', 'auth:admin'],
+], function () {
+    \UniSharp\LaravelFilemanager\Lfm::routes();
+});
+

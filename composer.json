@@ -11,12 +11,14 @@
     "require": {
         "php": "^8.2",
         "christiankuri/laravel-favorite": "*",
+        "intervention/image-laravel": "^1.5",
         "laravel/framework": "^12.0",
         "laravel/passport": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "laravel/ui": "^4.6",
         "spatie/laravel-translatable": "*",
+        "unisharp/laravel-filemanager": "^2.10",
         "yajra/laravel-datatables": "12.0"
     },
     "require-dev": {

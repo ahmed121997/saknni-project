@@ -177,7 +177,7 @@ class AdminController extends Controller
         }
         if($validator->passes()) {
             $res->update($request->all());
-            return redirect()->route('admin.profile')->with('success_update','data is updated successfully');
+            return redirect()->route('admin.profile')->with('success','data is updated successfully');
         }
         return redirect()->back()->withErrors($validator)->withInput($request->all());
     }

@@ -15,10 +15,14 @@
 }
 .dataTables_wrapper thead tr:first-child{
     background: #efefef;
-    
+
 }
 
 
 .text-gray-300{
     color:#4e73df!important;
+}
+
+.table{
+    width:100% !important;
 }

@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@section('title', ' | Properties')
 @section('links')
     <!-- Custom styles for this page -->
     <link href="{{ asset('css/admin/all.css') }}" rel="stylesheet">
@@ -42,7 +43,6 @@
 
 @section('script')
     <!-- Page level plugins -->
-    <script src="{{ asset('js/addProperty.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             // set the CSRF token for AJAX requests

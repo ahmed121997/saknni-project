@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@section('title', ' | Users')
 @section('links')
     <!-- Custom styles for this page -->
     <link href="{{ asset('css/admin/all.css') }}" rel="stylesheet">

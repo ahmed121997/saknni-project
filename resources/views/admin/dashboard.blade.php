@@ -1,7 +1,4 @@
 @php
-    // title page
-    $title = 'dashboard';
-
     $users_count = isset($user_count)? $user_count:'undefined';
     $properties_count = isset($property_count)? $property_count:'undefined';
     $percentage_not_active = isset($not_active) && $properties_count > 0? ($not_active/$properties_count) *100 : 0;
@@ -9,6 +6,7 @@
     $percentage_active = 100 - $percentage_not_active;
 @endphp
 @extends('admin.layouts.app')
+@section('title', ' | Dashboard')
 @section('content')
     <!-- Begin Page Content -->
     <div class="container-fluid">

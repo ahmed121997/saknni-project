@@ -1,18 +1,10 @@
-@php
-    // title page
-    $title = 'dashboard';
-
-    $users_count = isset($user_count)? $user_count:'undefined';
-    $properties_count = isset($property_count)? $property_count:'undefined';
-    $percentage_not_active = isset($not_active)? ($not_active/$properties_count) *100:0;
-    $percentage_active = 100 - $percentage_not_active;
-@endphp
 @extends('admin.layouts.app')
-    @section('links')
-    <link href="{{ asset('public/css/admin/all.css') }}" rel="stylesheet">
-        <link href="{{ asset('public/css/user.css') }}" rel="stylesheet">
-    @endsection
-    @section('content')
+@section('title', ' | Edit Profile')
+@section('links')
+    <link href="{{ asset('css/admin/all.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/user.css') }}" rel="stylesheet">
+@endsection
+@section('content')
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -20,52 +12,82 @@
                     <div class="card-header">{{ __('users.update_your_profile') }}</div>
 
                     <div class="card-body">
-                        <form method="POST" action="{{ route('admin.profile.update',$user->id) }}">
+                        <form method="POST" action="{{ route('admin.profile.update', $user->id) }}">
                             @csrf
 
                             <div class="form-group row">
-                                <label for="name" class="col-md-4 col-form-label text-md-center">{{ __('users.name') }}</label>
+                                <label for="name"
+                                    class="col-md-4 col-form-label text-md-center">{{ __('users.name') }}</label>
 
                                 <div class="col-md-6">
-                                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ $user->name }}" required  autofocus>
+                                    <input id="name" type="text"
+                                        class="form-control @error('name') is-invalid @enderror" name="name"
+                                        value="{{ $user->name }}" required autofocus>
 
                                     @error('name')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
                                     @enderror
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="email" class="col-md-4 col-form-label text-md-center">{{ __('users.email') }}</label>
+                                <label for="email"
+                                    class="col-md-4 col-form-label text-md-center">{{ __('users.email') }}</label>
 
                                 <div class="col-md-6">
-                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ $user->email}}" required autocomplete="email">
+                                    <input id="email" type="email"
+                                        class="form-control @error('email') is-invalid @enderror" name="email"
+                                        value="{{ $user->email }}" required autocomplete="email">
 
                                     @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
                                     @enderror
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="mobile" class="col-md-4 col-form-label text-md-center">{{ __('users.phone') }}</label>
+                                <label for="mobile"
+                                    class="col-md-4 col-form-label text-md-center">{{ __('users.phone') }}</label>
 
                                 <div class="col-md-6">
-                                    <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{$user->phone}}"  required autocomplete="phone">
+                                    <input id="phone" type="text"
+                                        class="form-control @error('phone') is-invalid @enderror" name="phone"
+                                        value="{{ $user->phone }}" required autocomplete="phone">
 
                                     @error('phone')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
                                     @enderror
                                 </div>
                             </div>
-                            <div class="form-group row mb-0">
-                                <div class="col-md-6 offset-md-4">
+                            <div class="form-group row">
+                                <label for="inputPhoto" class="col-form-label col-md-4 text-md-center">Image</label>
+                                <div class="col-6">
+                                    <div class="input-group text-md-center">
+                                        <span class="input-group-btn">
+                                            <a id="lfm" data-input="thumbnail" data-preview="holder" class="btn btn-primary text-white">
+                                            <i class="fa fa-picture-o text-white"></i> Choose
+                                            </a>
+                                        </span>
+                                    <input id="thumbnail" class="form-control" type="text" name="image" value="{{$user->image}}">
+                                  </div>
+                                  <div id="holder" style="margin-top:15px;max-height:100px;">
+                                    @if ($user->image)
+                                        <img src="{{ asset($user->image) }}" style="height: 100px; width: 100px;">
+                                    @endif
+                                    </div>
+                                    @error('image')
+                                        <span class="text-danger">{{$message}}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="form-group row mb-0 text-end">
+                                <div class="col-md-6 offset-md-8">
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('update') }}
                                     </button>
@@ -79,12 +101,15 @@
     </div>
 @endsection
 
-    @section('script')
-    <script src="{{ asset('public/js/admin/all.js') }}"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-        <!-- include script chart users-->
-        
-    @endsection
+@section('script')
+    <script src="/vendor/laravel-filemanager/js/stand-alone-button.js"></script>
+    <script src="{{ asset('js/admin/all.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            $('#lfm').filemanager('image', {
+                prefix: '/admin/media-filemanager'
+            });
+        });
+    </script>
+@endsection
+
