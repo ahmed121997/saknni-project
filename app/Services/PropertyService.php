@@ -53,14 +53,6 @@ class PropertyService
                 ]);
             }
             if (isset($data['images'])) {
-                // Delete old images if needed
-                $oldImages = $property->images;
-                foreach ($oldImages as $oldImage) {
-                    if (file_exists(public_path($oldImage->source))) {
-                        unlink(public_path($oldImage->source));
-                    }
-                    $oldImage->delete();
-                }
                 // Upload new images
                 foreach ($data['images'] as $image) {
                     $nameFile = $image->getClientOriginalName();

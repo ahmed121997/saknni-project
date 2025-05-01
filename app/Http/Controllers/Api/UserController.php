@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-use App\Traits\GeneralApiTreat;
+use App\Traits\GeneralApiResponseTreat;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -14,38 +13,22 @@ class UserController extends Controller
         $this->middleware('auth:api');
     }
     //
-    use GeneralApiTreat;
+    use GeneralApiResponseTreat;
     public function update(Request $request){
-        $res = User::find(Auth::id());
-        if(!$res){
-            return $this->responseError('E001',__('user not found !'));
+        $user = User::find(Auth::id());
+        if(!$user){
+            return $this->responseNotFound(__('user not found !'));
         }
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
+            'phone' => 'digits_between:11,20'
+        ]);
         try{
-
-            if($res->email == $request->email){
-                $validator  = Validator::make($request->all(), [
-                    'name' => ['required', 'string', 'max:255'],
-                    'email' => ['required', 'string', 'email', 'max:255'],
-                    'phone' => 'digits_between:11,20',
-                ]);
-            }else{
-                $validator  = Validator::make($request->all(), [
-                    'name' => ['required', 'string', 'max:255'],
-                    'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                    'phone' => 'digits_between:11,20'
-                ]);
-            }
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-
-            $res->update($request->all());
-            return $this->responseSuccess('S001',__('user data is updated'));
-
+            $user->update($request->only(['name','email','phone']));
+            return $this->responseSuccessData(['user' => $user],__('user data is updated'));
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
-
     }
 }

@@ -42,18 +42,18 @@ Route::group(['namespace'=>'App\Http\Controllers\Api'], function (){
             'prefix' => 'property',
         ], function (){
             // update user
-            Route::post('create','PropertyController@create');
+            Route::get('create','PropertyController@create');
             Route::post('store','PropertyController@store');
-            Route::post('edit','PropertyController@edit');
-            Route::post('update','PropertyController@update');
-            Route::post('delete','PropertyController@delete');
-            Route::post('index','PropertyController@index');
-            Route::post('showAll','PropertyController@showAllProperties');
-            Route::post('special','PropertyController@allSpecial');
+            Route::post('/{id}/update','PropertyController@update');
+            Route::delete('/{id}/delete','PropertyController@delete');
+
+            Route::get('all','PropertyController@index');
+            Route::get('/{id}/show','PropertyController@show');
+            Route::get('special','PropertyController@allSpecial');
+
             Route::post('search','SearchController@mainSearch');
 
-
-            Route::post('get_cities','PropertyController@getCities');
+            Route::get('/gov/{id}/cities','PropertyController@getCities');
         });
 
 

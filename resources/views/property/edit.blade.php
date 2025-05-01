@@ -195,6 +195,20 @@
                         <label>{{__('property.link_youtube')}}:</label>
                         <input type="text" name="link_youtube" id="link_youtube" placeholder="{{__('property.link_youtube')}}" value="{{$property->link_youtube}}"/>
 
+                        <label>{{__('property.images')}}:</label>
+                        <input type="file" name="images[]" id="images" multiple placeholder="{{__('property.images')}}"/>
+                        <div class="row">
+                            @if(isset($property->images) && count($property->images) > 0)
+                                @foreach($property->images as $image)
+                                    <div class="col-md-3">
+                                        <img src="{{asset($image->source)}}" alt="" class="img-thumbnail" style="width: 100px;height: 100px;">
+                                        <a href="#!" data-id="{{$image->id}}" class="btn  btn-sm mt-2 delete_image">
+                                            <i class="far fa-trash-alt text-danger"></i>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
 
                         <input type="button" name="previous" class="previous action-button-previous" value="{{__('property.previous')}}"/>
                         <input type="submit" name="submit" class="submit action-button" value="{{__('property.submit')}}"/>
@@ -221,47 +235,76 @@
 @section('script')
     <script  src="{{asset('js/addProperty.js')}}"></script>
     <script>
-        $("#gov").change(function(){
-            $.ajax({
-                type: 'post',
-                url: '{{route("get.cities")}}',
-                data: {
-                    '_token' : '{{csrf_token()}}',
-                    'id' : this.value,
-                },
-                success: function(data) {
-                    let all_opt = "";
-                    $.each(data,function (key,value) {
-                        all_opt += " <option value=" + value.id+ ">" + value.name + "</option> ";
-                    });
-                    $("#city > optgroup").html(all_opt);
-                },
-                error: function(reject) {
+        $(document).ready(function () {
+            // set header for ajax
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
-                },
+            $("#gov").change(function(){
+                $.ajax({
+                    type: 'post',
+                    url: '{{route("get.cities")}}',
+                    data: {
+                        '_token' : '{{csrf_token()}}',
+                        'id' : this.value,
+                    },
+                    success: function(data) {
+                        let all_opt = "";
+                        $.each(data,function (key,value) {
+                            all_opt += " <option value=" + value.id+ ">" + value.name + "</option> ";
+                        });
+                        $("#city > optgroup").html(all_opt);
+                    },
+                    error: function(reject) {
+
+                    },
+                });
+            });
+
+            $("#list_section").click(function () {
+                let type_rent = '{{__("property.type_rent")}}';
+                let daily = '{{__("property.daily")}}';
+                let monthly = '{{__("property.monthly")}}';
+                if($(this).val() === 'rent') {
+                    if(!$(".type-rent")[0]){
+                        $(this).after('<label class="type-rent">'+type_rent+':</label>' +
+                            '<select name="type_rent" class="type-rent""">' +
+                            '<option value="daily">'+daily+'</option>' +
+                            '<option value="monthly">'+monthly+'</option>' +
+                            '</select>');
+                    }
+                }else{
+                    $(".type-rent").remove();
+                }
+            });
+            // delete image
+            $('body').on('click','.delete_image',function (e) {
+                e.preventDefault();
+                if(!confirm("{{__('property.are_you_sure_delete_image')}}")){
+                    return false;
+                }
+                let ele = $(this);
+                let id = $(this).data('id');
+                $.ajax({
+                    type: 'post',
+                    url: '{{route('property.delete.image',$property->id)}}',
+                    data: {
+                        'image_id' : id,
+                    },
+                    success: function(data) {
+                        if(data.status == 'success'){
+                            //showMessage(data.message, data.status);
+                            ele.parent().remove();
+                        }
+                    },
+                    error: function(reject) {
+
+                    }
+                });
             });
         });
-
-
-
-        $("#list_section").click(function () {
-            let type_rent = '{{__("property.type_rent")}}';
-            let daily = '{{__("property.daily")}}';
-            let monthly = '{{__("property.monthly")}}';
-            if($(this).val() === 'rent') {
-                if(!$(".type-rent")[0]){
-                    $(this).after('<label class="type-rent">'+type_rent+':</label>' +
-                        '<select name="type_rent" class="type-rent""">' +
-                        '<option value="daily">'+daily+'</option>' +
-                        '<option value="monthly">'+monthly+'</option>' +
-                        '</select>');
-                }
-            }else{
-                $(".type-rent").remove();
-            }
-        });
-
-
-
     </script>
 @endsection

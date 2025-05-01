@@ -10,21 +10,12 @@ use App\Models\TypeFinish;
 use App\Models\TypePayment;
 use App\Models\TypeProperty;
 use Illuminate\Http\Request;
-use App\Traits\GeneralApiTreat;
+use App\Traits\GeneralApiResponseTreat;
 
 class SearchController extends Controller
 {
-    use GeneralApiTreat;
-    public function index(){
-        $list_views = ListView::select('id','list_'.app()->getLocale().' as type')->get();
-        $type_properties = TypeProperty::select('id','type_'.app()->getLocale().' as type')->get();
-        $type_finishes  = TypeFinish::select('id','type_'.app()->getLocale() . ' as type')->get();
-        $type_payments = TypePayment::select('id','type_'.app()->getLocale() . ' as type')->get();
-        $govs = Governorate::select('id','governorate_name_'.app()->getLocale() .' as governorate_name')->get();
-        return view('search',compact(['list_views', 'type_finishes','type_properties', 'type_payments','govs']));
-    }
-
-
+    use GeneralApiResponseTreat;
+  
     public function mainSearch(Request $request){
 
         $type_properties = TypeProperty::select('id','type_'.app()->getLocale() .' as type')->get();

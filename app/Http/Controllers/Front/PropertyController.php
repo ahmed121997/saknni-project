@@ -109,4 +109,14 @@ class PropertyController extends Controller
         $property->toggleFavorite();
     }
 
+    public function deleteImage($id){
+        $imageId = request()->image_id;
+        if(!$imageId){
+            return response()->json(['status' => 'error', 'message' => __('property.image_not_found!')]);
+        }
+        $property = Property::find($id);
+        $property->images()->where('id', $imageId)->delete();
+        return response()->json(['status' => 'success', 'message' => __('property.image_deleted_successfully!')]);
+    }
+
 }

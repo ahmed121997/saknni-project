@@ -31,10 +31,11 @@ Route::group(['prefix'=>'admin', 'as' => 'admin.', 'middleware' => 'auth:admin']
     Route::post('/profile/update/{id}', [AdminController::class, 'profile_update'])->name('profile.update');
 
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::post('/verify_user', [AdminController::class, 'verify_user'])->name('verify.user');
+
 
     Route::get('/user', [UserAdminController::class, 'user'])->name('user');
     Route::post('/user/datatable', [UserAdminController::class, 'userDatatable'])->name('users.datatable');
+    Route::post('/verify_user', [UserAdminController::class, 'verify_user'])->name('verify.user');
 
     Route::get('/property', [PropertyAdminController::class, 'property'])->name('property');
     Route::post('/property/datatable', [PropertyAdminController::class, 'propertyDatatable'])->name('properties.datatable');

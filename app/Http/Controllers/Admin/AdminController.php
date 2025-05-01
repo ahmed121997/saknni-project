@@ -182,37 +182,4 @@ class AdminController extends Controller
         return redirect()->back()->withErrors($validator)->withInput($request->all());
     }
 
-
-
-    public function verify_user(Request $request){
-        $res = User::find($request->id);
-        if(!$res){
-            return response('false',401);
-        }
-        $res->update(['email_verified_at' => now(),]);
-        $res->save();
-        return response('true',200);
-    }
-
-
-    public function verify_property(Request $request){
-        $res = Property::find($request->id);
-        if(!$res){
-            return response('false',401);
-        }
-        $res->status = 1;
-        $res->save();
-        return response('true',200);
-    }
-
-    public function update_special_property(Request $request){
-        $res = Property::find($request->id);
-        if(!$res){
-            return response('false',401);
-        }
-        $res->is_special = $request->is_special ? 1 : 0;
-        $res->save();
-        return response('true',200);
-    }
-
 }

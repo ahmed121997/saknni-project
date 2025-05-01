@@ -16,7 +16,10 @@ class Property extends Model
         'type_finish_id', 'governorate_id','city_id', 'location', 'des_property_id',
         'type_payment_id', 'price', 'link_youtube','status','trans_payment_id', 'is_special',
     ];
-
+    protected $casts = [
+        'is_special' => 'boolean',
+        'status' => 'boolean',
+    ];
 ########################### Relation with Property Model ########################
     public function user(){
         return $this->belongsTo('App\Models\User','user_id','id');

@@ -10,22 +10,27 @@ use App\Models\Property;
 use App\Models\TypeFinish;
 use App\Models\TypePayment;
 use App\Models\TypeProperty;
-use App\Traits\GeneralApiTreat;
+use App\Traits\GeneralApiResponseTreat;
 use App\Traits\SaveImages;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePropertyRequest;
+use App\Http\Resources\PropertiesResource;
+use App\Services\PropertyService;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PropertyController extends Controller
 {
-    function __construct()
+    protected $propertyService;
+    public function __construct(PropertyService $propertyService)
     {
-        $this->middleware('auth:api')->except(['index','getCities','showAllProperties','allSpecial']);
+        $this->propertyService = $propertyService;
+        $this->middleware('auth:api')->except(['show','getCities','index','allSpecial']);
     }
 
     // traits
-    use GeneralApiTreat;
+    use GeneralApiResponseTreat;
     use SaveImages;
 
     /**
@@ -34,45 +39,71 @@ class PropertyController extends Controller
      */
     public function index(Request $request){
         try {
-            $property = Property::with(['images', 'des',
-                'typeProperty' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'view' => function ($q) {
-                    $q->select('id', 'list_' . app()->getLocale() . ' as list');
-                },
-                'finish' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'city' => function ($q) {
-                    $q->select('id', 'city_name_' . app()->getLocale() . ' as city_name');
-                },
-                'payment', 'user', 'comments'])->find($request->id);
-            if (!$property)
-                return $this->responseError('E001', __('property_id_not_found'));
-            $property->images->source = unserialize($property->images->source);
-            return $this->responseWithData('data', $property);
+            $withs = ['images:id,source,property_id','des:id,title,property_id', 'typeProperty:id,name', 'view:id,name', 'finish:id,name', 'payment:id,name'];
+            $properties = $this->propertyService->getAll([],$withs);
+            return PropertiesResource::collection($properties);
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
     }
 
 
     /**
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id){
+        try {
+            $property = $this->propertyService->findById($id);
+            if(!$property)
+                return $this->responseNotFound(__('property.property_not_found'));
+            return new PropertiesResource($property);
+        }catch (\Exception $ex){
+            return $this->responseError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
      * @return \Illuminate\Http\JsonResponse
      */
     public function create(){
-        $list_views = ListView::select('id','list_'.app()->getLocale().' as list')->get();
-        $type_properties = TypeProperty::select('id','type_'.app()->getLocale() .' as type')->get();
-        $type_finishes  = TypeFinish::select('id','type_'.app()->getLocale() .' as type')->get();
-        $type_payments = TypePayment::select('id','type_'.app()->getLocale() .' as type')->get();
-        $govs = Governorate::select('id','governorate_name_'.app()->getLocale() .' as governorate_name')->get();
+        $list_views = ListView::select('id', 'name')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+            ];
+        });
+        $type_properties = TypeProperty::select('id', 'name')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+            ];
+        });
+        $type_finishes  = TypeFinish::select('id', 'name')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+            ];
+        });
+        $type_payments = TypePayment::select('id', 'name')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+            ];
+        });
+        $govs = Governorate::select('id', 'name')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+            ];
+        });
 
-        return $this->responseWithData('data',['list_views'=> $list_views,
-                                                    'type_finish'=> $type_finishes,
-                                                    'type_property'=> $type_properties,
-                                                    'type_payment' =>$type_payments,
-                                                    'govs'=> $govs
+        return $this->responseSuccessData([
+            'list_views' => $list_views,
+            'type_finish' => $type_finishes,
+            'type_property' => $type_properties,
+            'type_payment' => $type_payments,
+            'govs' => $govs,
         ]);
     }
 
@@ -81,138 +112,30 @@ class PropertyController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     // store property
-    public function store(Request $request){
+    public function store(StorePropertyRequest $request){
 
         try {
-            $validator = Validator::make($request->all(), $this->rules());
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-
-            $images = $this->saveMultipleImages($request, 'images');
-
-            $res = Property::create([
-                'user_id' => $request->user_id,
-                'type_property_id' => $request->type_property,
-                'list_section' => $request->list_section,
-                'area' => $request->area,
-                'city_id' => $request->city,
-                'num_bathroom' => $request->bathroom,
-                'num_rooms' => $request->rooms,
-                'list_view_id' => $request->list_view,
-                'num_floor' => $request->floor,
-                'type_finish_id' => $request->type_finish,
-                'location' => $request->location,
-                'type_payment_id' => $request->type_pay,
-                'price' => $request->price,
-                'link_youtube' => $request->link_youtube,
-            ]);
-            $res->save();
-            $id = $res->id;
-            /// add Details for property
-            $properties = Property::find($id);
-            $des = new DescriptionProperty;
-            $des->title = $request->title;
-            $des->details = $request->details;
-            $properties->des()->save($des);
-
-            $img = new Image;
-            $img->source = serialize($images);
-            $properties->images()->save($img);
-
-            if (!$res && !$des && !$img) {
-                return $this->responseError('E001', __('property.fail_to_add_property'));
-            }
-            return $this->responseSuccess('S001', __('property.property_added_successfully!'));
+            $property = $this->propertyService->createProperty($request->all());
+            return $this->responseSuccess(__('property.property_added_successfully!'));
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
-    }
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    // Edit Property
-    public function edit(Request $request){
-        try{
-            $property = Property::with(['city'=> function($q){
-                $q->select('id','gov_id','city_name_'.app()->getLocale().' as city_name');
-            },
-                'des','images'])->find($request->id);
-
-            if(!$property)
-                return $this->responseError('E001',__('property.property_id_not_found'));
-
-            $cities = Governorate::with(['cities'=>function($q){
-                $q->select('id','city_name_'.app()->getLocale(). ' as city_name');
-            }])->find($property->city->gov_id);
-
-            $list_views = ListView::select('id','list_'.app()->getLocale() .' as list')->get();
-            $type_properties = TypeProperty::select('id','type_'.app()->getLocale() .' as type')->get();
-            $type_finishes  = TypeFinish::select('id','type_'.app()->getLocale() .' as type')->get();
-            $type_payments = TypePayment::select('id','type_'.app()->getLocale() .' as type')->get();
-            $govs = Governorate::select('id','governorate_name_'.app()->getLocale() .' as governorate_name')->get();
-
-            return $this->responseWithData('data',[
-                'property' => $property,
-                'list_views'=> $list_views,
-                'type_finish'=> $type_finishes,
-                'type_property'=> $type_properties,
-                'type_payment' =>$type_payments,
-                'govs'=> $govs,
-                'cities' =>$cities,
-            ]);
-        }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
-        }
-
     }
     /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     // update property
-    public function update(Request $request){
+    public function update(StorePropertyRequest $request, $id){
         try {
-            $res = Property::find($request->id);
-            $res_des = DescriptionProperty::find($request->id_des);
-            if (!$res && !$res_des)
-                return $this->responseError('E001', __('property.property_id_not_found'));
+            $property = Property::find($id);
+            if (!$property)
+                return $this->responseNotFound(__('property not found'));
 
-            $validator = Validator::make($request->all(), $this->rules());
-
-            if ($validator->fails()) {
-                $code = $this->returnCodeAccordingToInput($validator);
-                return $this->returnValidationError($code, $validator);
-            }
-            $des = $res_des->update([
-                'title' => $request->title,
-                'details' => $request->details,
-            ]);
-            $res = $res->update([
-                'type_property_id' => $request->type_property,
-                'list_section' => $request->list_section,
-                'area' => $request->area,
-                'city_id' => $request->city,
-                'num_bathroom' => $request->bathroom,
-                'num_rooms' => $request->rooms,
-                'list_view_id' => $request->list_view,
-                'num_floor' => $request->floor,
-                'type_finish_id' => $request->type_finish,
-                'location' => $request->location,
-                'type_payment_id' => $request->type_pay,
-                'price' => $request->price,
-                'link_youtube' => $request->link_youtube,
-            ]);
-
-            if (!$res && !$des) {
-                return $this->responseError('E001', __('property.fail_to_update_property'));
-            }
-            return $this->responseSuccess('S001', __('property.update_successfully!'));
+            $this->propertyService->updateProperty($id, $request->all());
+            return $this->responseSuccess(__('property.update_successfully!'));
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
     }
 
@@ -222,96 +145,26 @@ class PropertyController extends Controller
      */
     public function delete($id){
         try {
-            $property = Property::find($id);
+            $user = Auth::guard('api')->user();
+            $property = Property::where('user_id', $user->id)->find($id);
             if (!$property)
-                return $this->responseError('E001', __('property.property_id_not_found'));
-            $images = Image::where('property_id', $id)->first();
-            $files = $images->source = unserialize($images->source);
-            for ($i = 0; $i < count($files); $i++) {
-                $files[$i] = public_path() . '/images/' . $files[$i];
-            }
-            $files = File::delete($files);
-            $images->delete();
-            $des = DescriptionProperty::where('property_id', $id)->first();
-            $des->delete();
-            $property->delete();
-            if (!$property) {
-                return $this->responseError('E001', __('property.fail_to_delete_property'));
-            }
-            return $this->responseSuccess('S001', __('property.delete_successfully!'));
+                return $this->responseNotFound(__('property not found'));
+
+            $this->propertyService->deleteProperty($id);
+            return $this->responseSuccess(__('property deleted successfully!'));
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
-
-        }
-    }
-
-    /**
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function showAllProperties(){
-        try {
-
-            $properties = Property::with(['des','user'=>function ($q) {
-                $q->select('id','phone','name');
-            },'images',
-                'typeProperty' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'view' => function ($q) {
-                    $q->select('id', 'list_' . app()->getLocale() . ' as list');
-                },
-                'finish' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'payment' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'city' => function ($q) {
-                    $q->select('id', 'city_name_' . app()->getLocale() . ' as city_name');
-                }
-            ])->paginate(ENV('PAGINATION_COUNT','20'));
-
-            foreach ($properties as $property) {
-                $property->images->source = unserialize($property->images->source);
-            }
-
-            return $this->responseWithData('data', $properties);
-        }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
     }
 
 
     public function allSpecial(){
         try {
-            $properties = Property::with(['des', 'user' => function ($q) {
-                $q->select('id', 'phone', 'name');
-            },
-                'images',
-                'typeProperty' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'view' => function ($q) {
-                    $q->select('id', 'list_' . app()->getLocale() . ' as list');
-                },
-                'finish' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'payment' => function ($q) {
-                    $q->select('id', 'type_' . app()->getLocale() . ' as type');
-                },
-                'city' => function ($q) {
-                    $q->select('id', 'city_name_' . app()->getLocale() . ' as city_name');
-                }
-            ])->where('special', '=', 1)->orderByDesc('created_at')->paginate(ENV('PAGINATION_COUNT','20'));
-
-            foreach ($properties as $property) {
-                $property->images->source = unserialize($property->images->source);
-            }
-
-            return $this->responseWithData('data', $properties);
+            $withs = ['images','des', 'typeProperty:id,name', 'view:id,name', 'finish:id,name', 'payment:id,name','user'];
+            $properties = Property::with($withs)->where('is_special', '=',1)->orderByDesc('created_at')->paginate(20);
+            return PropertiesResource::collection($properties);
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
     }
     /**
@@ -320,37 +173,23 @@ class PropertyController extends Controller
      */
 
     // get cities by id gov
-    public function getCities(Request $request){
+    public function getCities(Request $request, $id){
         try {
-            $govs = Governorate::with(['cities'=>function($q){
-                $q->select('id','gov_id','city_name_'.app()->getLocale().' as city_name');
-            }])->find($request->id);
-            if (!$govs) {
-                return $this->responseError('E001', 'property.not_found_id');
-            }
-            return $this->responseWithData('cities', $govs);
+            $gov = Governorate::find($id);
+            if (!$gov)
+                return $this->responseNotFound(__('Governorate not found'));
+            $cities = $gov->cities()->select('id', 'name')->get()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                ];
+            });
+            return $this->responseSuccessData([
+                'cities' => $cities,
+            ]);
         }catch (\Exception $ex){
-            return $this->responseError($ex->getCode(), $ex->getMessage());
+            return $this->responseError($ex->getMessage(), $ex->getCode());
         }
     }
 
-    private function rules(){
-        return  [
-            'type_property'=> 'required|numeric',
-            'list_section'=> 'required|string',
-            'area'=> 'required|numeric|min:40|max:5000',
-            'city' =>'required|numeric',
-            'bathroom'=>'required|numeric|min:1|max:50',
-            'rooms'=>'required|numeric|min:1|max:200',
-            'list_view'=>'required|numeric',
-            'floor'=> 'required|numeric|min:0|max:100',
-            'type_finish'=> 'required|numeric',
-            'location'=> 'required|string',
-            'type_pay'=>'required|numeric',
-            'price'=>'required|numeric',
-            'link_youtube'=>'required',
-            'title'=>'required:string|max:255',
-            'details'=>'required:string',
-        ];
-    }
 }

@@ -32,6 +32,7 @@ Route::group(['prefix'=>'property'],function(){
     Route::any('store',[PropertyController::class, 'store'])->name('store.property');
     Route::get('edit/{id}',[PropertyController::class, 'edit'])->name('edit.property');
     Route::any('update',[PropertyController::class, 'update'])->name('update.property');
+    Route::post('property-image/{id}/delete',[PropertyController::class, 'deleteImage'])->name('property.delete.image');
 
     Route::any('comments',[CommentPropertyController::class, 'store'])->name('comments.store');
     Route::delete('comments/{id}/delete',[CommentPropertyController::class, 'destroy'])->name('comments.destroy');
