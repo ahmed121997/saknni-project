@@ -10,6 +10,8 @@ use App\Traits\GeneralApiResponseTreat;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PropertiesResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class AuthController extends Controller
 {
@@ -55,7 +57,7 @@ class AuthController extends Controller
     }
 
 
-    public function register(Request $request)
+    public function register(Request $request) : JsonResponse
     {
         $request->validate([
             'name' => 'required|string',
@@ -85,7 +87,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout()
+    public function logout() : JsonResponse
     {
         $user = User::find(@Auth::guard('api')->user()->id);
         if ($user) {
@@ -99,7 +101,7 @@ class AuthController extends Controller
     }
 
 
-    public function me()
+    public function me() : JsonResponse
     {
         $user = User::find(Auth::id());
         $withs = ['images', 'des', 'typeProperty', 'view', 'finish', 'payment'];
@@ -115,7 +117,7 @@ class AuthController extends Controller
 
 
     // Forget password Function
-    public function forgot_password(Request $request)
+    public function forgot_password(Request $request) : JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -138,7 +140,7 @@ class AuthController extends Controller
 
 
 
-    public function change_password(Request $request)
+    public function change_password(Request $request) : JsonResponse
     {
         $request->validate([
             'old_password' => 'required',
@@ -170,7 +172,7 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
-    public function verify($user_id, Request $request) {
+    public function verify($user_id, Request $request) : JsonResponse | RedirectResponse{
         if (!$request->hasValidSignature()) {
             return $this->responseError("Invalid/Expired url provided.");
         }
@@ -187,7 +189,8 @@ class AuthController extends Controller
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function resend() {
+    public function resend() : JsonResponse
+    {
         $user = User::find(Auth::id());
         if ($user->hasVerifiedEmail()) {
             return $this->responseError("Email already verified.");

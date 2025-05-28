@@ -16,8 +16,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePropertyRequest;
 use App\Http\Resources\PropertiesResource;
 use App\Services\PropertyService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 
 class PropertyController extends Controller
@@ -37,7 +39,7 @@ class PropertyController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request){
+    public function index(Request $request): JsonResponse|AnonymousResourceCollection {
         try {
             $withs = ['images:id,source,property_id','des:id,title,property_id', 'typeProperty:id,name', 'view:id,name', 'finish:id,name', 'payment:id,name'];
             $properties = $this->propertyService->getAll([],$withs);
@@ -52,7 +54,7 @@ class PropertyController extends Controller
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id){
+    public function show($id): JsonResponse| PropertiesResource {
         try {
             $property = $this->propertyService->findById($id);
             if(!$property)
@@ -66,7 +68,7 @@ class PropertyController extends Controller
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function create(){
+    public function create(): JsonResponse {
         $list_views = ListView::select('id', 'name')->get()->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -112,7 +114,7 @@ class PropertyController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     // store property
-    public function store(StorePropertyRequest $request){
+    public function store(StorePropertyRequest $request) : JsonResponse {
 
         try {
             $property = $this->propertyService->createProperty($request->all());
@@ -126,7 +128,7 @@ class PropertyController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     // update property
-    public function update(StorePropertyRequest $request, $id){
+    public function update(StorePropertyRequest $request, $id): JsonResponse {
         try {
             $property = Property::find($id);
             if (!$property)
@@ -143,7 +145,7 @@ class PropertyController extends Controller
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function delete($id){
+    public function delete($id): JsonResponse {
         try {
             $user = Auth::guard('api')->user();
             $property = Property::where('user_id', $user->id)->find($id);
@@ -158,11 +160,34 @@ class PropertyController extends Controller
     }
 
 
-    public function allSpecial(){
+    public function allSpecial() : AnonymousResourceCollection| JsonResponse {
         try {
             $withs = ['images','des', 'typeProperty:id,name', 'view:id,name', 'finish:id,name', 'payment:id,name','user'];
             $properties = Property::with($withs)->where('is_special', '=',1)->orderByDesc('created_at')->paginate(20);
             return PropertiesResource::collection($properties);
+        }catch (\Exception $ex){
+            return $this->responseError($ex->getMessage(), $ex->getCode());
+        }
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     * Get all governorates
+     * This method retrieves all governorates from the database and returns them in a JSON response.
+     * @throws \Exception
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getGovs() : JsonResponse {
+        try {
+            $govs = Governorate::select('id', 'name')->get()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'name' => $item->name,
+                ];
+            });
+            return $this->responseSuccessData([
+                'govs' => $govs,
+            ]);
         }catch (\Exception $ex){
             return $this->responseError($ex->getMessage(), $ex->getCode());
         }
@@ -173,7 +198,7 @@ class PropertyController extends Controller
      */
 
     // get cities by id gov
-    public function getCities(Request $request, $id){
+    public function getCities(Request $request, $id) : JsonResponse {
         try {
             $gov = Governorate::find($id);
             if (!$gov)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Traits\GeneralApiResponseTreat;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +15,8 @@ class UserController extends Controller
     }
     //
     use GeneralApiResponseTreat;
-    public function update(Request $request){
+    public function update(Request $request) : JsonResponse
+    {
         $user = User::find(Auth::id());
         if(!$user){
             return $this->responseNotFound(__('user not found !'));
