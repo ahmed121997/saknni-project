@@ -104,7 +104,8 @@ return [
     'quick_create'           => 'إضافة سريعة',
     'verify'                => 'تأكيد',
     'verified'              => 'تم التأكيد',
-    'online'                => 'متصل',
     'active'                => 'نشط',
     'not_active'            => 'غير نشط',
+    'users'                 => 'Users',
+    'Client'               => 'العميل',
 ];

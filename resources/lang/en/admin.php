@@ -106,7 +106,8 @@ return [
     'quick_create'           => 'Quick create',
     'verify'                => 'Verify',
     'verified'              => 'Verified',
-    'online'                => 'Online',
     'active'                => 'Active',
     'not_active'            => 'Not Active',
+    'users'                => 'Users',
+    'Client'               => 'Clients',
 ];

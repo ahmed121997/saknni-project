@@ -8,7 +8,7 @@ use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
-    //
+    use \TomatoPHP\FilamentLanguageSwitcher\Traits\InteractsWithLanguages;
     use Notifiable, HasFactory;
 
     protected $table = 'admins';

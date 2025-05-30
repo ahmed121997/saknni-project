@@ -3,7 +3,11 @@
 namespace App\Models;
 
 use ChristianKuri\LaravelFavorite\Traits\Favoriteable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Property extends Model
 {
@@ -20,47 +24,64 @@ class Property extends Model
         'is_special' => 'boolean',
         'status' => 'boolean',
     ];
-########################### Relation with Property Model ########################
-    public function user(){
+    protected $appends = [
+        'images_sources',
+    ];
+    ########################### Relation with Property Model ########################
+    public function user() : BelongsTo
+    {
         return $this->belongsTo('App\Models\User','user_id','id');
     }
-    public function des(){
+    public function des() : HasOne
+    {
         return $this->hasOne('App\Models\DescriptionProperty','property_id','id');
     }
-    public function images(){
+    public function images() : HasMany
+    {
         return $this->HasMany('App\Models\Image', 'property_id','id');
     }
-    public function typeProperty(){
+    public function typeProperty() : BelongsTo
+    {
         return $this->belongsTo('App\Models\TypeProperty','type_property_id','id');
     }
 
-    public function view(){
+    public function view() : BelongsTo
+    {
         return $this->belongsTo('App\Models\ListView','list_view_id','id');
     }
-    public function finish(){
+    public function finish() : BelongsTo
+    {
         return $this->belongsTo('App\Models\TypeFinish','type_finish_id','id');
     }
-    public function payment(){
+    public function payment() : BelongsTo
+    {
         return $this->belongsTo('App\Models\TypePayment','type_payment_id','id');
     }
     public function governorate(){
         return $this->belongsTo('App\Models\Governorate','governorate_id','id');
     }
-    public function city(){
+    public function city() : BelongsTo
+    {
         return $this->belongsTo('App\Models\City','city_id','id');
     }
-    public function comments()
+    public function comments(): HasMany
     {
         return $this->hasMany('App\Models\Comment')->whereNull('parent_id');
     }
     ###########################  End Relation with Property Model ########################
-
-    public function scopeActive($q, $id)
+    public function getImagesSourcesAttribute() : array
+    {
+        $sources = $this->images->pluck('source')->toArray();
+        return array_map(function ($source) {
+            return asset($source);
+        }, $sources);
+    }
+    public function scopeActive($q, $id) : Builder
     {
         return $q->where('id',$id)->update(['status' => 1]);
     }
 
-    public function scopeFilter($query, $filters)
+    public function scopeFilter($query, $filters) : Builder
     {
         return $query->when($filters['type_property_id'] ?? false, function ($query, $type_property_id) {
             return $query->where('type_property_id', $type_property_id);

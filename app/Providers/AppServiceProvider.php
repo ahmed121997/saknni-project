@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use AbdulmajeedJamaan\FilamentTranslatableTabs\TranslatableTabs;
 use App\Models\Property;
 use App\Repositories\Interfaces\PropertyRepositoryInterface;
 use App\Repositories\PropertyRepository;

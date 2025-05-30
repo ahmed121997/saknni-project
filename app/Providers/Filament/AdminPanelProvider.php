@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use CWSPS154\AppSettings\AppSettingsPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -11,6 +12,7 @@ use Filament\Navigation\UserMenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\SpatieLaravelTranslatablePlugin;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -66,6 +68,22 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->navigationGroups([
+                'Location Settings',
+                'Property Settings',
+                'Translations'
+            ])
+            ->plugins([AppSettingsPlugin::make()->canAccess(function () {
+                    return true;
+                })
+                ->canAccessAppSectionTab(function () {
+                    return true;
+                })
+                ->appAdditionalField([])]
+            )
+            ->plugin(\TomatoPHP\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin::make())
+            ->plugin(SpatieLaravelTranslatablePlugin::make()->defaultLocales(array_keys(config('app.locales'))))
+            ->readOnlyRelationManagersOnResourceViewPagesByDefault(false)
             ->authMiddleware([
                 Authenticate::class,
             ]);

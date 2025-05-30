@@ -11,6 +11,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 class User extends Authenticatable implements mustVerifyEMail
 {
+    use \TomatoPHP\FilamentLanguageSwitcher\Traits\InteractsWithLanguages;
+
     use Notifiable,Favoriteability, HasApiTokens, HasFactory;
 
     /**
