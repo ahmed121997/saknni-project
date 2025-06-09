@@ -1,5 +1,8 @@
 <div class="display-comment">
-    <strong class="mt-1">{{ $comment->user->name }}</strong>
+    <strong class="mt-1">
+        <img src="{{ $comment->user->avatar }}" class="mx-1" style="width: 40px;height: 40px;border-radius: 50%;"/>
+        {{ $comment->user->name }}
+    </strong>
     <p>{{ $comment->body }}</p>
 
     @if(Auth::check() && $comment->user_id == auth()->id())

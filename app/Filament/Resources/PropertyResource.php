@@ -31,7 +31,10 @@ class PropertyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-home-modern';
     protected static ?int $navigationSort = 2;
-
+    public static function getPluralLabel(): string
+    {
+        return __('admin.properties');
+    }
     public static function form(Form $form): Form
     {
         return $form
@@ -255,7 +258,7 @@ class PropertyResource extends Resource
         ];
     }
 
-   public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
             ->schema([

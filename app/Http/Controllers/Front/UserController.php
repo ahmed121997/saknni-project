@@ -64,25 +64,21 @@ class UserController extends Controller
     **  parameters $request and $id
     **
     */
-    public function update(Request $request,$id){
-        $res = User::findorfail($id);
-        // if existed email equal inserted email
-        if($res->email == $request->email){
-            $validator  = Validator::make($request->all(), [
+    public function update(Request $request, $id){
+        $user = User::findorfail($id);
+        $validator  = Validator::make($request->all(), [
                 'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
                 'phone' => 'digits_between:11,20',
+                'avatar' => 'nullable|file|mimes:jpeg,jpg,png,gif,webp|max:2048', // max 2MB
             ]);
-        }else{
-            $validator  = Validator::make($request->all(), [
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'phone' => 'digits_between:11,20'
-            ]);
-        }
 
         if($validator->passes()) {
-            $res->update($request->all());
+            $user->update($request->all());
+            if ($request->hasFile('avatar')) {
+                $user->clearMediaCollection('avatar');
+                $user->addMediaFromRequest('avatar')->toMediaCollection('avatar');
+            }
             return redirect()->route('user.index')->with('success_update','data is updated successfully');
         }
         return redirect()->back()->withErrors($validator)->withInput($request->all());

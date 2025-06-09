@@ -22,9 +22,15 @@ class CityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-asia-australia';
 
-    protected static ?string $navigationGroup = 'Location Settings';
     protected static ?int $navigationSort = 2;
-
+    public static function getNavigationGroup(): string
+    {
+        return __('Location Settings');
+    }
+    public static function getPluralLabel(): string
+    {
+        return __('admin.cities');
+    }
     public static function form(Form $form): Form
     {
         return $form

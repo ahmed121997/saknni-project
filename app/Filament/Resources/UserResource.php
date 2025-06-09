@@ -2,13 +2,20 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\UserResource\Actions\ChangePasswordAction;
+use App\Filament\Resources\UserResource\Actions\VerifyUserAction;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Infolists\Components\ImageNameEntry;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -34,17 +41,18 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('email')
                     ->email()
                     ->required()
+                    ->unique(ignoreRecord: true)
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
+                    ->autocomplete('new-password')
+                    ->hiddenOn('edit')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
                     ->maxLength(255)
                     ->default(null),
-                Forms\Components\DateTimePicker::make('last_seen'),
             ]);
     }
 
@@ -52,6 +60,9 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+               Tables\Columns\ImageColumn::make('avatar')
+                    ->circular()
+                    ->label(__('admin.avatar')),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
@@ -77,8 +88,11 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                ChangePasswordAction::make(),
+                VerifyUserAction::make(),
+                Tables\Actions\ViewAction::make()->iconButton(),
+                Tables\Actions\EditAction::make()->iconButton(),
+                Tables\Actions\DeleteAction::make()->iconButton(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -90,17 +104,45 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PropertiesRelationManager::class,
         ];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                ImageNameEntry::make('name')
+                    ->imageColumn('avatar')
+                    ->label(__('name')),
+                TextEntry::make('email')
+                    ->label(__('email')),
+                TextEntry::make('phone')
+                    ->label(__('phone')),
+                TextEntry::make('last_seen')
+                    ->label(__('last seen'))
+                    ->dateTime(),
+                TextEntry::make('created_at')
+                    ->label(__('admin.created_at'))
+                    ->dateTime(),
+                TextEntry::make('updated_at')
+                    ->label(__('admin.updated_at'))
+                    ->dateTime(),
+                TextEntry::make('email_verified_at')
+                    ->label(__('email verified at'))
+                    ->dateTime(),
+                TextEntry::make('count_properties')
+                    ->badge(true)
+                    ->label(__('admin.properties count'))
+                    ->state(fn ($record) : int => $record->properties()->count()),
+            ]);
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-            // 'create' => Pages\CreateUser::route('/create'),
-            // 'view' => Pages\ViewUser::route('/{record}'),
-            // 'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view' => Pages\ViewUser::route('/{record}'),
         ];
     }
 }

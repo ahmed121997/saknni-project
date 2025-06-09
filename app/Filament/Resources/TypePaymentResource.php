@@ -20,9 +20,16 @@ class TypePaymentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
 
-    protected static ?string $navigationGroup = 'Property Settings';
-    protected static ?int $navigationSort = 2;
 
+    protected static ?int $navigationSort = 2;
+    public static function getNavigationGroup(): string
+    {
+        return __('Property Settings');
+    }
+    public static function getPluralLabel(): string
+    {
+        return __('admin.type payments');
+    }
     public static function form(Form $form): Form
     {
         return $form

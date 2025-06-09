@@ -1,11 +1,8 @@
-@php
-    $locale = App::getLocale();
-    $margin = $locale === 'en' ? true : false;
-@endphp
 <nav class="navbar navbar-expand-md navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a class="navbar-brand ml-5" href="{{ url('/') }}">
             <span class="s">S</span><span class="ak">Ak</span><span class="nni">nNi</span>
+            {{-- <img src="{{ $appData['logo'] }}" width="120" height="40" /> --}}
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
             <span class="navbar-toggler-icon"></span>
@@ -46,7 +43,7 @@
                 @else
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
-                            {{ Auth::user()->name }}
+                          <img src="{{ Auth::user()->avatar }}" class="mx-1" style="width: 40px;height: 40px;border-radius: 50%;"/>  {{ Auth::user()->name }}
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-right " aria-labelledby="navbarDropdown" >
@@ -72,7 +69,7 @@
 
                 @foreach(config('app.locales') as $key => $value)
                     @if(app()->getLocale() !== $key)
-                        <li  class="nav-item mr-lg-3 ml-lg-3" >
+                        <li  class="nav-item mr-lg-3 ml-lg-3 mt-2" >
                             <a class="nav-link" rel="alternate" hreflang="{{ $key }}" href="{{ route('lang.switch', $key) }}">
                                {{ $value }}
                             </a>

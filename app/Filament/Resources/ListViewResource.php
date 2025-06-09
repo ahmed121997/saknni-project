@@ -21,9 +21,16 @@ class ListViewResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-viewfinder-circle';
 
-    protected static ?string $navigationGroup = 'Property Settings';
     protected static ?int $navigationSort = 4;
 
+    public static function getNavigationGroup(): string
+    {
+        return __('Property Settings');
+    }
+    public static function getPluralLabel(): string
+    {
+        return __('admin.list views');
+    }
     public static function form(Form $form): Form
     {
         return $form

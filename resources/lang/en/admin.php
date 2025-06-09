@@ -110,4 +110,12 @@ return [
     'not_active'            => 'Not Active',
     'users'                => 'Users',
     'Client'               => 'Clients',
+    'type finishes'        => 'Type Finishes',
+    'type payments'       => 'Type Payments',
+    'type properties'     => 'Type Properties',
+    'governorates'        => 'Governorates',
+    'cities'              => 'Cities',
+    'properties'          => 'Properties',
+    'list views'          => 'List Views',
+    "properties count" => 'Properties Count',
 ];

@@ -108,4 +108,12 @@ return [
     'not_active'            => 'غير نشط',
     'users'                 => 'Users',
     'Client'               => 'العميل',
+    'type finishes'        => 'نوع التشطيبات',
+    'type payments'       => 'نوع المدفوعات',
+    'type properties'     => 'نوع العقارات',
+    'governorates'        => 'المحافظات',
+    'cities'              => 'المدن',
+    'properties'          => 'العقارات',
+    'list views'          => 'قوائم المشاهدة',
+    "properties count" => 'عدد العقارات',
 ];

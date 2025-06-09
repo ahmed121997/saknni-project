@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-class User extends Authenticatable implements mustVerifyEMail
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+
+class User extends Authenticatable implements mustVerifyEMail, HasMedia
 {
     use \TomatoPHP\FilamentLanguageSwitcher\Traits\InteractsWithLanguages;
 
-    use Notifiable,Favoriteability, HasApiTokens, HasFactory;
+    use Notifiable,Favoriteability, HasApiTokens, HasFactory, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -42,10 +45,13 @@ class User extends Authenticatable implements mustVerifyEMail
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ['avatar'];
+    public function getAvatarAttribute()
+    {
+        return $this->getFirstMediaUrl('avatar') ?: asset('images/default-profile.png');
+    }
 
-
-
-    public function properties() : HasMany
+    public function properties(): HasMany
     {
         return $this->hasMany('App\Models\Property','user_id','id');
     }

@@ -49,4 +49,5 @@ return [
     'type_pay'              => 'Type Pay',
     'link_youtube'          => 'Link youtube',
     'images'                => 'Images',
+    'avatar'                => 'Avatar',
 ];

@@ -19,10 +19,16 @@ class GovernorateResource extends Resource
     protected static ?string $model = Governorate::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
-
-    protected static ?string $navigationGroup = 'Location Settings';
     protected static ?int $navigationSort = 1;
 
+    public static function getNavigationGroup(): string
+    {
+        return __('Location Settings');
+    }
+    public static function getPluralLabel(): string
+    {
+        return __('admin.governorates');
+    }
     public static function form(Form $form): Form
     {
         return $form

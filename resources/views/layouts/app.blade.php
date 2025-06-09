@@ -1,6 +1,6 @@
 @php
-$locale = app()->getLocale();
-$margin = $locale === 'en' ? true : false;
+    $locale = app()->getLocale();
+    $margin = $locale === 'en' ? true : false;
 @endphp
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{$locale == 'en'? 'ltr':'rtl'}}">
@@ -15,9 +15,9 @@ $margin = $locale === 'en' ? true : false;
     <meta name="description" content="Saknni services allow you to buy or sell a property while providing essential information to help you take one of life’s biggest financial decisions."/>
     <meta name=”robots” content="index, follow">
 
-    <title>{{ config('app.name', 'Saknni') }} @yield('title')</title>
+    <title>{{ $appData['app_name'] }} @yield('title')</title>
 
-    <link rel="icon" href="{{asset('logo.jpg')}}"/>
+    <link rel="icon" href="{{ $appData['fav_icon'] }}"/>
 
     {{-- pre links --}}
     @yield('pre-links')
@@ -35,7 +35,21 @@ $margin = $locale === 'en' ? true : false;
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/all.css') }}" rel="stylesheet">
+    @if($locale == 'ar')
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Anton&family=Cairo:wght@200..1000&family=Playpen+Sans+Arabic:wght@100..800&display=swap" rel="stylesheet">
+        <style>
+            *{
+                font-family: "Playpen Sans Arabic", cursive;
+                font-optical-sizing: auto;
+                font-weight: 600;
+                font-style: normal;
+            }
+        </style>
+    @endif
     @yield('links')
+
 </head>
 <body>
     <div id="app">

@@ -20,10 +20,16 @@ class TypePropertyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
 
-    protected static ?string $navigationGroup = 'Property Settings';
     protected static ?int $navigationSort = 1;
 
-
+    public static function getNavigationGroup(): string
+    {
+        return __('Property Settings');
+    }
+    public static function getPluralLabel(): string
+    {
+        return __('admin.type properties');
+    }
     public static function form(Form $form): Form
     {
         return $form

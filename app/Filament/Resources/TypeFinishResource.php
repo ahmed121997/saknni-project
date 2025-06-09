@@ -20,9 +20,15 @@ class TypeFinishResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-magnifying-glass-minus';
 
-    protected static ?string $navigationGroup = 'Property Settings';
     protected static ?int $navigationSort = 3;
-
+    public static function getNavigationGroup(): string
+    {
+        return __('Property Settings');
+    }
+    public static function getPluralLabel(): string
+    {
+        return __('admin.type finishes');
+    }
     public static function form(Form $form): Form
     {
         return $form
