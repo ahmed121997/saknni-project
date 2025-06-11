@@ -76,9 +76,13 @@ class Property extends Model
             return asset($source);
         }, $sources);
     }
-    public function scopeActive($q, $id) : Builder
+    public function scopeActive($query): Builder
     {
-        return $q->where('id',$id)->update(['status' => 1]);
+        return $query->where('status', 1);
+    }
+    public function scopeNotActive($query): Builder
+    {
+        return $query->where('status', 1);
     }
 
     public function scopeFilter($query, $filters) : Builder

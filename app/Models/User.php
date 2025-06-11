@@ -2,60 +2,47 @@
 
 namespace App\Models;
 
-use ChristianKuri\LaravelFavorite\Traits\Favoriteability;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable implements mustVerifyEMail, HasMedia
+class User extends Authenticatable
 {
-    use \TomatoPHP\FilamentLanguageSwitcher\Traits\InteractsWithLanguages;
-
-    use Notifiable,Favoriteability, HasApiTokens, HasFactory, InteractsWithMedia;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var list<string>
      */
     protected $fillable = [
-        'name', 'email', 'password','phone','last_seen','email_verified_at'
+        'name',
+        'email',
+        'password',
     ];
 
     /**
-     * The attributes that should be hidden for arrays.
+     * The attributes that should be hidden for serialization.
      *
-     * @var array
+     * @var list<string>
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     /**
-     * The attributes that should be cast to native types.
+     * Get the attributes that should be cast.
      *
-     * @var array
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    protected $appends = ['avatar'];
-    public function getAvatarAttribute()
+    protected function casts(): array
     {
-        return $this->getFirstMediaUrl('avatar') ?: asset('images/default-profile.png');
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
-
-    public function properties(): HasMany
-    {
-        return $this->hasMany('App\Models\Property','user_id','id');
-    }
-
-
-
 }

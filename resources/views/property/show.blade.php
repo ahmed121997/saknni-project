@@ -70,7 +70,7 @@
                                     <h4>{{__('property.video property')}} :</h4>
                                 </div>
                                 <div class="col-12">
-                                    <iframe width="100%" height="400" src="{{ getYoutubeEmbedUrl($property->link_youtube) }}" frameborder="0" allowfullscreen></iframe>
+                                    <iframe width="100%" height="400" src="{{ get_youtube_embed_url($property->link_youtube) }}" frameborder="0" allowfullscreen></iframe>
                                 </div>
                             @endif
                             {{-- end youtube --}}

@@ -64,17 +64,17 @@
     <!-- Nav Item - Utilities Collapse Menu -->
     <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
-           aria-expanded="{{ isActiveRoutes(['admin.type-properties.index', 'admin.list-views.index', 'admin.type-finishes.index'], 'true', 'false') }}"
+           aria-expanded="{{ is_active_routes(['admin.type-properties.index', 'admin.list-views.index', 'admin.type-finishes.index'], 'true', 'false') }}"
            aria-controls="collapseUtilities">
             <i class="fas fa-fw fa-wrench"></i>
             <span>Utilities</span>
         </a>
-        <div id="collapseUtilities" class="collapse {{ isActiveRoutes(['admin.type-properties.index', 'admin.list-views.index', 'admin.type-finishes.index'], 'show') }}"
+        <div id="collapseUtilities" class="collapse {{ is_active_routes(['admin.type-properties.index', 'admin.list-views.index', 'admin.type-finishes.index'], 'show') }}"
              aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item {{ isActiveRoutes(['admin.type-properties.index'])}}" href="{{ route('admin.type-properties.index') }}">Type Properties</a>
-                <a class="collapse-item {{ isActiveRoutes(['admin.list-views.index']) }}" href="{{ route('admin.list-views.index') }}">List Views</a>
-                <a class="collapse-item {{ isActiveRoutes(['admin.type-finishes.index']) }}" href="{{ route('admin.type-finishes.index') }}">Type Finishes</a>
+                <a class="collapse-item {{ is_active_routes(['admin.type-properties.index'])}}" href="{{ route('admin.type-properties.index') }}">Type Properties</a>
+                <a class="collapse-item {{ is_active_routes(['admin.list-views.index']) }}" href="{{ route('admin.list-views.index') }}">List Views</a>
+                <a class="collapse-item {{ is_active_routes(['admin.type-finishes.index']) }}" href="{{ route('admin.type-finishes.index') }}">Type Finishes</a>
             </div>
         </div>
     </li>
